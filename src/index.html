@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Screener</title>
+</head>
+<body>
+<img id="screen">
+<script src="/socket.io/socket.io.js"></script>
+<script src="/socketiop2p.min.js"></script>
+<script>
+    const socket = io('http://localhost:9090');
+    const p2p = new P2P(socket);
+
+    p2p.on('ready', () => {
+        p2p.usePeerConnection = true;
+    });
+    const screen = document.getElementById('screen');
+    let last = 0;
+    socket.on('screen', function (data) {
+        const newTime = new Date().getTime();
+        console.log(newTime - last);
+        console.log(data.image.length);
+        last = newTime;
+        screen.src = 'data:image/jpeg;base64,' + data.image;
+    });
+</script>
+</body>
+</html>
