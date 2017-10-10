@@ -23,7 +23,7 @@ function handler(req, res) {
 
 io.on('connection', async (socket) => {
     clients[socket.id] = socket;
-    socket.join('screener');
+    socket.join('chromeer');
     p2p(socket);
 
     const browser = await puppeteer.launch();
@@ -31,9 +31,13 @@ io.on('connection', async (socket) => {
     await page.goto('https://www.youtube.com/watch?v=PiGr64N3EvE');
     const screenshots = setInterval(async () => {
         const buffer = await page.screenshot({ /*fullPage: true, */omitBackground: true, type: 'jpeg', quality: 80 });
-        //console.log(`New image ${new Date().getTime()}`);
         socket.volatile.emit('screen', { image: buffer.toString('base64') });
     }, 50);
+
+    socket.on('resize', ({ width, height }) => {
+        console.info(`Set vieport dimension ${width}x${height}`);
+        page.setViewport({ width, height });
+    });
 
     socket.on('disconnect', () => {
         clearInterval(screenshots);
