@@ -5,7 +5,13 @@ const PresentationLayer = require('./client/presentation');
 const TransportLayer = require('./client/transport');
 
 const Mapper = {
-    button: (button) => button === 0 ? 'left' : button === 1 ? 'middle' : 'right'
+    button: (val) => {
+        switch (val) {
+            case 0: return 'left';
+            case 1: return 'middle';
+            case 2: return 'right';
+        }
+    }
 };
 
 (function () {
@@ -20,6 +26,24 @@ const Mapper = {
         transport.emit('resize', { width, height });
         presentation.resize({ width, height });
     };
+
+    // bind browser events
+    document.querySelector('.action-history-back').addEventListener('click', (event) => {
+        event.stopPropagation();
+        transport.emit('history', { action: 'back'});
+    }, true);
+
+    document.querySelector('.action-history-forward').addEventListener('click', (event) => {
+        event.stopPropagation();
+        transport.emit('history', { action: 'forward' });
+    }, true);
+
+    document.querySelector('#panel').addEventListener('submit', (event) => {
+        event.stopPropagation();
+        event.preventDefault();
+        const url = document.querySelector('.value-url').value;
+        transport.emit('history', { action: 'goto', url });
+    }, true);
 
 
     // proxy client events
