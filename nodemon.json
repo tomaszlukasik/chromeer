@@ -1,0 +1,8 @@
+{
+    "restartable": "rs",
+    "watch": [
+        "src/handlers",
+        "src/headless",
+        "src/server.js"
+    ]
+}
