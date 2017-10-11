@@ -11,27 +11,34 @@ const TransportLayer = require('./client/transport');
     const presentation = PresentationLayer(document.getElementById('viewport'));
     const transport = TransportLayer({ host: 'http://localhost:9090' });
 
-    const setCanvasDimension = function () {
+    const updateCanvasDimension = function () {
         const { innerWidth: width, innerHeight: height } = window;
         transport.emit('resize', { width, height });
         presentation.resize({ width, height });
     };
 
-    const bindWindowEvents = function () {
-        window.addEventListener("resize", throttle(setCanvasDimension, 500), false);
-        window.addEventListener("mousemove", throttle((event) => {
-            const { clientY, layerY, offsetY, pageY, screenY, y } = event;
-            console.log('mouse:move', JSON.stringify({ clientY, layerY, offsetY, pageY, screenY, y }));
-            const { screenX: x, screenY: zy } = event;
-            transport.emit('mousemove', { x, y: zy });
-        }, 500), false);
-    };
+    // proxy client events
+    window.addEventListener('resize', throttle(updateCanvasDimension, 500), false);
+
+    window.addEventListener('mousemove', throttle((event) => transport.emit('mousemove', {
+        x: event.clientX,
+        y: event.clientY
+    }), 500), false);
+
+    window.addEventListener('click', (event) => transport.emit('click', {
+        x: event.clientX,
+        y: event.clientY,
+        button: event.button
+    }), false);
+
+    window.addEventListener('dblclick', (event) => transport.emit('dblclick', {
+        x: event.clientX,
+        y: event.clientY,
+        button: event.button
+    }), false);
 
 
-    // bootstrap
-    bindWindowEvents();
-    transport.listen('screen', (data) => {
-        presentation.draw(data)
-    });
-    transport.listen('connect', setCanvasDimension);
+    // handle server events
+    transport.listen('screen', presentation.draw);
+    transport.listen('ready', updateCanvasDimension);
 })();
