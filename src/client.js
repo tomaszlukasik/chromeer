@@ -1,3 +1,5 @@
+'use strict';
+
 (function () {
     const throttle = require('lodash.throttle');
 
@@ -11,16 +13,26 @@
     const p2p = new P2P(socket);
     const screen = new Image();
 
-    const setCanvasDimension = function () {
-        const { innerWidth: width, innerHeight: height } = window;
-        console.info(`Set canvas dimension ${width}x${height}`);
-        canvas.width = width;
-        canvas.height = height;
-        socket.emit('resize', { width, height })
+    const emitEvent = function (type, params) {
+        console.info(`Emit ${type} event`);
+        socket.emit('action', { type, params });
     };
 
-    window.onload = setCanvasDimension;
-    window.addEventListener("resize", throttle(setCanvasDimension, 500), false);
+    const setCanvasDimension = function () {
+        const { innerWidth: width, innerHeight: height } = window;
+        emitEvent('resize', { width, height });
+        canvas.width = width;
+        canvas.height = height;
+    };
+
+    const bindWindowEvents = function () {
+        window.onload = setCanvasDimension;
+        window.addEventListener("resize", throttle(setCanvasDimension, 500), false);
+    };
+
+
+    // bootstrap
+    bindWindowEvents();
 
     p2p.on('ready', () => {
         p2p.usePeerConnection = true;
