@@ -46,4 +46,5 @@ io.on('connection', async (socket) => {
     await browser.goto('https://www.youtube.com/watch?v=PiGr64N3EvE');
     console.log('Page loaded');
     Object.entries(socketHandlers.handlers).map(([event, eventHandler]) => socket.on(event, eventHandler));
+    socket.emit('ready')
 });
