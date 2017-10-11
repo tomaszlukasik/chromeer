@@ -5,16 +5,21 @@ const socketIo = require('socket.io');
 const { Server: p2p } = require('socket.io-p2p-server');
 
 const headless = require('./headless');
+const handlers = require('./handlers');
+
+const PORT = 9090;
 
 const app = http.createServer(handler);
 const io = socketIo(app);
 
 io.use(p2p);
-app.listen(9090);
+app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 
 const browser = headless({
     screenshot: { omitBackground: true, type: 'jpeg', quality: 60 }
 });
+
+const socketHandlers = handlers(browser);
 
 const clients = {};
 
@@ -32,22 +37,13 @@ function handler(req, res) {
 
 io.on('connection', async (socket) => {
     clients[socket.id] = socket;
+    console.log('Client connected');
     p2p(socket);
+    socketHandlers.setSocket(socket);
 
     await browser.init();
+    console.log('Browser ready');
     await browser.goto('https://www.youtube.com/watch?v=PiGr64N3EvE');
-    const screenshots = setInterval(async () => {
-        const buffer = await browser.screenshot();
-        socket.volatile.emit('screen', { image: buffer.toString('base64') });
-    }, 50);
-
-    socket.on('resize', async ({ width, height }) => {
-        console.info(`Set vieport dimension ${width}x${height}`);
-        await browser.setViewport({ width, height });
-    });
-
-    socket.on('disconnect', async () => {
-        clearInterval(screenshots);
-        await browser.close();
-    });
+    console.log('Page loaded');
+    Object.entries(socketHandlers.handlers).map(([event, eventHandler]) => socket.on(event, eventHandler));
 });
