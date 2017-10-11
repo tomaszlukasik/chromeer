@@ -1,12 +1,21 @@
 const fs = require('fs');
-const app = require('http').createServer(handler);
+const http = require('http')
 
-const io = require('socket.io')(app);
-const p2p = require('socket.io-p2p-server').Server;
-const puppeteer = require('puppeteer');
+const socketIo = require('socket.io');
+const { Server: p2p } = require('socket.io-p2p-server');
+
+const headless = require('./headless');
+
+const app = http.createServer(handler);
+const io = socketIo(app);
 
 io.use(p2p);
 app.listen(9090);
+
+const browser = headless({
+    screenshot: { omitBackground: true, type: 'jpeg', quality: 60 }
+});
+
 const clients = {};
 
 function handler(req, res) {
@@ -23,24 +32,22 @@ function handler(req, res) {
 
 io.on('connection', async (socket) => {
     clients[socket.id] = socket;
-    socket.join('chromeer');
     p2p(socket);
 
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://www.youtube.com/watch?v=PiGr64N3EvE');
+    await browser.init();
+    await browser.goto('https://www.youtube.com/watch?v=PiGr64N3EvE');
     const screenshots = setInterval(async () => {
-        const buffer = await page.screenshot({ /*fullPage: true, */omitBackground: true, type: 'jpeg', quality: 80 });
+        const buffer = await browser.screenshot();
         socket.volatile.emit('screen', { image: buffer.toString('base64') });
     }, 50);
 
-    socket.on('resize', ({ width, height }) => {
+    socket.on('resize', async ({ width, height }) => {
         console.info(`Set vieport dimension ${width}x${height}`);
-        page.setViewport({ width, height });
+        await browser.setViewport({ width, height });
     });
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', async () => {
         clearInterval(screenshots);
-        browser.close();
+        await browser.close();
     });
 });
