@@ -19,7 +19,11 @@ const mapper = require('./client/puppeteer-mapper');
         presentation.resize({ width, height });
     };
 
-    const getProxyUrl = () => document.location.href.substr(1);
+    const getProxyUrl = () => document.location.hash.substr(1);
+
+    const updateProxiedUrl = (url) => {
+        document.location.hash = url;
+    };
 
     const getCurrentCoordinates = (event) => ({
         x: event.pageX,
@@ -44,6 +48,9 @@ const mapper = require('./client/puppeteer-mapper');
         transport.emit('history', { action: 'goto', url });
     }, true);
 
+    window.addEventListener('hashchange', () => {
+        document.querySelector('.value-url').value = getProxyUrl();
+    });
 
     // proxy client events
     window.addEventListener('resize', throttle(updateCanvasDimension, 500), false);
@@ -78,4 +85,5 @@ const mapper = require('./client/puppeteer-mapper');
     // handle server events
     transport.listen('screen', presentation.draw);
     transport.listen('ready', updateCanvasDimension);
+    transport.listen('url', updateProxiedUrl);
 })();
