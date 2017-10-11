@@ -8,23 +8,13 @@ const TransportLayer = require('./client/transport');
     console.info('Welcome to the Hack Day 2017!');
     console.info('Chromeer - Remote Browser with an isolation layer');
 
-    const getDimension = function () {
-        const { innerWidth: width, innerHeight: height } = window;
-        console.log('dimension', { width, height });
-        return { width, height };
-    };
-
     const presentation = PresentationLayer(document.getElementById('viewport'));
-    const transport = TransportLayer({
-        host: 'http://localhost:9090',
-        usePeerConnection: true,
-        initialViewport: getDimension()
-    });
+    const transport = TransportLayer({ host: 'http://localhost:9090' });
 
     const setCanvasDimension = function () {
-        const dimension = getDimension();
-        transport.emit('resize', dimension);
-        presentation.resize(dimension);
+        const { innerWidth: width, innerHeight: height } = window;
+        transport.emit('resize', { width, height });
+        presentation.resize({ width, height });
     };
 
     const bindWindowEvents = function () {
@@ -40,5 +30,8 @@ const TransportLayer = require('./client/transport');
 
     // bootstrap
     bindWindowEvents();
-    transport.listen('screen', presentation.draw);
+    transport.listen('screen', (data) => {
+        presentation.draw(data)
+    });
+    transport.listen('connect', setCanvasDimension);
 })();
