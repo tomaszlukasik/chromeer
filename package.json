@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "prestart": "npm run build",
-    "start": "node src/server.js",
+    "start": "nodemon src/server.js",
     "build": "browserify src/client.js --debug | exorcist src/client.bundle.js.map > src/client.bundle.js",
     "watch": "watchify src/client.js -o src/client.bundle.js --debug --verbose"
   },
@@ -15,13 +15,12 @@
     "lodash.throttle": "^4.1.1",
     "puppeteer": "GoogleChrome/puppeteer",
     "socket.io": "^2.0.3",
-    "socket.io-client": "^2.0.3",
-    "socket.io-p2p": "^2.2.0",
-    "socket.io-p2p-server": "^1.2.0"
+    "socket.io-client": "^2.0.3"
   },
   "devDependencies": {
     "browserify": "^14.4.0",
     "exorcist": "^1.0.0",
+    "nodemon": "^1.12.1",
     "watchify": "^3.9.0"
   }
 }
