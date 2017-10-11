@@ -9,7 +9,7 @@ const handlers = require('./handlers');
 const PORT = 9090;
 
 const app = http.createServer(handler);
-const io = socketIo(app);
+const io = socketIo(app, { serveClient: false });
 
 app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
 

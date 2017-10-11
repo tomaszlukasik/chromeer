@@ -3,8 +3,13 @@ const defaultOpts = {
 };
 
 const actions = {
+    goto: (browser, { url }) => browser.goto(url),
+    goForward: browser => browser.goForward(),
+    goBack: browser => browser.goBack(),
     resize: (browser, viewport) => browser.setViewport(viewport),
-    mousemove: (browser, coords) => browser.mouseMove(coords)
+    mousemove: (browser, { x, y }) => browser.mouseMove(x, y),
+    click: (browser, { x, y, button }) => browser.mouseClick(x, y, button),
+    dblclick: (browser, { x, y, button }) => browser.mouseClick(x, y, button, 2)
 };
 
 function handlers(browser, options) {
@@ -19,12 +24,20 @@ function handlers(browser, options) {
     }
 
     async function sendScreenshot() {
-        if (socket) {
-            const buffer = await browser.screenshot();
-            socket.volatile.emit('screen', { image: buffer.toString('base64') });
-            // console.log(`Screenshot sent. Timestamp: ${new Date().getTime()}`);
+        if (!socket || !browser) {
+            return;
         }
-        timeout = setTimeout(() => sendScreenshot(), screenshotFreq);
+        try {
+            const [buffer, size] = await Promise.all([
+                browser.screenshot(),
+                browser.getDocumentSize()
+            ]);
+
+            socket.volatile.emit('screen', { image: buffer.toString('base64'), size });
+            timeout = setTimeout(() => sendScreenshot(), screenshotFreq);
+        } catch (error) {
+            console.error('Something is already closed');
+        }
     }
 
     async function handleAction({ type, params }) {
@@ -41,7 +54,7 @@ function handlers(browser, options) {
         sendScreenshot,
         handlers: {
             action: handleAction,
-            disconnect: async () => {
+            disconnect: () => {
                 console.log('Disconnecting');
                 socket = undefined;
                 stopTimeout();

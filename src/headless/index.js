@@ -15,20 +15,27 @@ function headless(options) {
     }
 
     async function close() {
-        await page.close();
-        await browser.close();
-        page = undefined;
-        browser = undefined;
+        const [pageLoc, browserLoc] = [page, browser];
+        page = browser = undefined;
+        await pageLoc.close();
+        await browserLoc.close();
     }
 
     return {
         init,
         close,
+        getUrl: () => page.url(),
+        getDocumentSize: () => page.evaluate(() => ({
+            height: document.documentElement.scrollHeight,
+            width: document.documentElement.scrollWidth
+        })),
         goto: url => page.goto(url),
+        goBack: () => page.goBack(),
+        goForward: () => page.goForward(),
         screenshot: () => page.screenshot(screenshotOpts),
         setViewport: viewport => page.setViewport(viewport),
-        mouseMove: async ({ x, y }) => page.mouse.move(x, y, 10),
-        mouseClick: ({ x, y, button = 'left' }) => page.mouse.click(x, y, { button })
+        mouseMove: (x, y) => page.mouse.move(x, y, 10),
+        mouseClick: (x, y, button = 'left', count = 1) => page.mouse.click(x, y, { button, clickCount: count })
     };
 }
 
