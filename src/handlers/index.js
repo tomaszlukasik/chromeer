@@ -11,6 +11,8 @@ const actions = {
                 return browser.goBack();
             case 'forward':
                 return browser.goForward();
+            default:
+                return Promise.resolve();
         }
     },
     resize: (browser, viewport) => browser.setViewport(viewport),
