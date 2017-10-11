@@ -1,15 +1,18 @@
 'use strict';
 
 const throttle = require('lodash.throttle');
-const PresentationLayer = require('./web/transport');
-const TransportLayer = require('./web/transport');
+const PresentationLayer = require('./client/presentation');
+const TransportLayer = require('./client/transport');
 
 (function () {
     console.info('Welcome to Hack Day 2017!');
     console.info('Chromeer - Remote Browser with an isolation layer');
 
-    const transport = TransportLayer({ host: 'http://localhost:9090' });
     const presentation = PresentationLayer(document.getElementById('viewport'));
+    const transport = TransportLayer({
+        host: 'http://localhost:9090',
+        usePeerConnection: true,
+    });
 
     const setCanvasDimension = function () {
         const { innerWidth: width, innerHeight: height } = window;
