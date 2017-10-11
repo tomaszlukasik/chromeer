@@ -12,35 +12,6 @@
 <canvas id="viewport"></canvas>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/socketiop2p.min.js"></script>
-<script>
-    const canvas = document.getElementById('viewport');
-    const context = canvas.getContext('2d');
-
-    const socket = io('http://localhost:9090');
-    const p2p = new P2P(socket);
-    const screen = new Image();
-
-    const setCanvasDimension = function () {
-        const { innerWidth: width, innerHeight: height } = window;
-        console.info(`Set canvas dimension ${width}x${height}`);
-        canvas.width = width;
-        canvas.height = height;
-        socket.emit('resize', { width, height })
-    };
-
-    window.onload = setCanvasDimension;
-    window.addEventListener("resize", setCanvasDimension, false);
-
-    p2p.on('ready', () => {
-        p2p.usePeerConnection = true;
-    });
-
-    socket.on('screen', function (data) {
-        screen.onload = function() {
-            context.drawImage(screen, 0, 0, canvas.width, canvas.height);
-        };
-        screen.src = 'data:image/jpeg;base64,' + data.image;
-    });
-</script>
+<script src="client.bundle.js"></script>
 </body>
 </html>

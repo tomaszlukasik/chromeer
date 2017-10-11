@@ -4,14 +4,22 @@
   "description": "",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "build": "browserify src/client.js --debug | exorcist src/client.bundle.js.map > src/client.bundle.js",
+    "watch": "watchify src/client.js -o src/client.bundle.js --debug --verbose"
   },
   "author": "Tomasz Lukasik",
   "license": "ISC",
   "dependencies": {
+    "lodash.throttle": "^4.1.1",
     "puppeteer": "^0.11.0",
     "socket.io": "^2.0.3",
     "socket.io-p2p": "^2.2.0",
     "socket.io-p2p-server": "^1.2.0"
+  },
+  "devDependencies": {
+    "browserify": "^14.4.0",
+    "exorcist": "^1.0.0",
+    "watchify": "^3.9.0"
   }
 }
