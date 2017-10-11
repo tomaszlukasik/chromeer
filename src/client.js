@@ -28,6 +28,10 @@
     const bindWindowEvents = function () {
         window.onload = setCanvasDimension;
         window.addEventListener("resize", throttle(setCanvasDimension, 500), false);
+        window.addEventListener("mousemove", throttle((event) => {
+            const { clientX: x, clientY: y } = event;
+            emitEvent('mousemove', { x, y })
+        }, 500), false);
     };
 
 
