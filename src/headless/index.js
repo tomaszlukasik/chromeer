@@ -37,7 +37,8 @@ function headless(options) {
         screenshot: () => page.screenshot(screenshotOpts),
         setViewport: viewport => page.setViewport(viewport),
         mouseMove: (x, y) => page.mouse.move(x, y, 10),
-        mouseClick: (x, y, button = 'left', count = 1) => page.mouse.click(x, y, { button, clickCount: count })
+        mouseClick: (x, y, button = 'left', count = 1) => page.mouse.click(x, y, { button, clickCount: count }),
+        scrollTo: (x, y) => page.evaluate((xCoord, yCoord) => window.scrollTo(xCoord, yCoord), x, y)
     };
 }
 

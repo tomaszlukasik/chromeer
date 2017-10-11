@@ -16,7 +16,8 @@ const actions = {
     resize: (browser, viewport) => browser.setViewport(viewport),
     mousemove: (browser, { x, y }) => browser.mouseMove(x, y),
     click: (browser, { x, y, button }) => browser.mouseClick(x, y, button),
-    dblclick: (browser, { x, y, button }) => browser.mouseClick(x, y, button, 2)
+    dblclick: (browser, { x, y, button }) => browser.mouseClick(x, y, button, 2),
+    scroll: (browser, { x, y }) => browser.scrollTo(x, y)
 };
 
 function handlers(browser, options) {
