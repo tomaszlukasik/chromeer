@@ -40,10 +40,12 @@ io.on('connection', async (socket) => {
 
     socketHandlers.setSocket(socket);
 
-    await browser.init();
+    await browser.init({
+        load: () => socket.emit('url', browser.getUrl())
+    });
     console.log('Browser ready');
     await browser.goto(URL);
     console.log('Page loaded');
-    Object.entries(socketHandlers.handlers).map(([event, eventHandler]) => socket.on(event, eventHandler));
+    Object.entries(socketHandlers.handlers).forEach(([event, eventHandler]) => socket.on(event, eventHandler));
     socket.emit('ready');
 });

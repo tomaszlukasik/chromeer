@@ -9,16 +9,18 @@ function headless(options) {
         screenshot: screenshotOpts = {}
     } = options;
 
-    async function init() {
+    async function init(eventHandlers = {}) {
         browser = browser || await puppeteer.launch(browserOpts);
-        page = page || await browser.newPage();
+        if (!page) {
+            page = await browser.newPage();
+            return Promise.all(Object.entries(eventHandlers).map(([event, cb]) => page.on(event, cb)));
+        }
+        return Promise.resolve();
     }
 
     async function close() {
-        const [pageLoc, browserLoc] = [page, browser];
-        page = browser = undefined;
-        await pageLoc.close();
-        await browserLoc.close();
+        await page.close();
+        page = undefined;
     }
 
     return {

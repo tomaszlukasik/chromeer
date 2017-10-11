@@ -3,9 +3,16 @@ const defaultOpts = {
 };
 
 const actions = {
-    goto: (browser, { url }) => browser.goto(url),
-    goForward: browser => browser.goForward(),
-    goBack: browser => browser.goBack(),
+    history: (browser, params) => {
+        switch (params.action) {
+            case 'goto':
+                return browser.goto(params.url);
+            case 'back':
+                return browser.goBack();
+            case 'forward':
+                return browser.goForward();
+        }
+    },
     resize: (browser, viewport) => browser.setViewport(viewport),
     mousemove: (browser, { x, y }) => browser.mouseMove(x, y),
     click: (browser, { x, y, button }) => browser.mouseClick(x, y, button),
@@ -45,8 +52,8 @@ function handlers(browser, options) {
         console.log(`Received action ${type} with params ${JSON.stringify(params)}`);
         if (actions[type]) {
             await actions[type](browser, params);
+            await sendScreenshot();
         }
-        await sendScreenshot();
     }
 
     return {
