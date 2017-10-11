@@ -3,6 +3,7 @@
 module.exports = function PresentationLayer(canvas) {
     const context = canvas.getContext('2d');
     const screen = new Image();
+    const panelHeight = document.querySelector('#panel').clientHeight;
 
     const draw = (data) => {
         screen.onload = () => context.drawImage(screen, 0, 0);
@@ -16,6 +17,7 @@ module.exports = function PresentationLayer(canvas) {
 
     return {
         draw,
-        resize
+        resize,
+        panelHeight
     }
 };

@@ -3,16 +3,7 @@
 const throttle = require('lodash.throttle');
 const PresentationLayer = require('./client/presentation');
 const TransportLayer = require('./client/transport');
-
-const Mapper = {
-    button: (val) => {
-        switch (val) {
-            case 0: return 'left';
-            case 1: return 'middle';
-            case 2: return 'right';
-        }
-    }
-};
+const mapper = require('./client/puppeteer-mapper');
 
 (function () {
     console.info('Welcome to the Hack Day 2017!');
@@ -26,6 +17,13 @@ const Mapper = {
         transport.emit('resize', { width, height });
         presentation.resize({ width, height });
     };
+
+    const getProxyUrl = () => document.location.href.substr(1);
+
+    const getCurrentCoordinates = (event) => ({
+        x: event.pageX,
+        y: event.pageY - presentation.panelHeight
+    });
 
     // bind browser events
     document.querySelector('.action-history-back').addEventListener('click', (event) => {
@@ -49,22 +47,25 @@ const Mapper = {
     // proxy client events
     window.addEventListener('resize', throttle(updateCanvasDimension, 500), false);
 
-    window.addEventListener('mousemove', throttle((event) => transport.emit('mousemove', {
-        x: event.pageX,
-        y: event.pageY
-    }), 500), false);
+    window.addEventListener('mousemove', throttle((event) => {
+        const params = Object.assign({}, getCurrentCoordinates(event));
+        transport.emit('mousemove', params);
+    }, 500), false);
 
-    window.addEventListener('click', (event) => transport.emit('click', {
-        x: event.clientX,
-        y: event.clientY,
-        button: Mapper.button(event.button)
-    }), false);
 
-    window.addEventListener('dblclick', (event) => transport.emit('dblclick', {
-        x: event.clientX,
-        y: event.clientY,
-        button: event.button
-    }), false);
+    window.addEventListener('click', (event) => {
+        const params = Object.assign({}, getCurrentCoordinates(event), {
+            button: mapper.button(event.button)
+        });
+        transport.emit('click', params);
+    }, false);
+
+    window.addEventListener('dblclick', (event) => {
+        const params = Object.assign({}, getCurrentCoordinates(event), {
+            button: mapper.button(event.button)
+        });
+        transport.emit('dblclick', params)
+    }, false);
 
 
     // handle server events
