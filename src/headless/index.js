@@ -19,8 +19,9 @@ function headless(options) {
     }
 
     async function close() {
-        await page.close();
+        const pageCopy = page;
         page = undefined;
+        await pageCopy.close();
     }
 
     return {

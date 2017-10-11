@@ -6,6 +6,7 @@ module.exports = function PresentationLayer() {
     const context = canvas.getContext('2d');
     const screen = new Image();
     const panelHeight = document.getElementById('panel').clientHeight;
+    canvas.style.top = panelHeight + 'px';
 
     const draw = ({ image = '', size = {} }) => {
         screen.onload = () => context.drawImage(screen, 0, 0);

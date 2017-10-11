@@ -1,5 +1,5 @@
 const defaultOpts = {
-    screenshotFreq: 50
+    screenshotFreq: 100
 };
 
 const actions = {
@@ -19,7 +19,7 @@ const actions = {
     mousemove: (browser, { x, y }) => browser.mouseMove(x, y),
     click: (browser, { x, y, button }) => browser.mouseClick(x, y, button),
     dblclick: (browser, { x, y, button }) => browser.mouseClick(x, y, button, 2),
-    scroll: (browser, { x, y }) => browser.scrollTo(x, y)
+    scroll: (browser, { scrollX, scrollY }) => browser.scrollTo(scrollX, scrollY)
 };
 
 function handlers(browser, options) {
@@ -30,11 +30,11 @@ function handlers(browser, options) {
     let socket;
 
     function stopTimeout() {
-        return timeout && clearTimeout(timeout);
+        timeout = timeout && clearTimeout(timeout);
     }
 
     async function sendScreenshot() {
-        if (!socket || !browser) {
+        if (!socket) {
             return;
         }
         try {
@@ -44,9 +44,9 @@ function handlers(browser, options) {
             ]);
 
             socket.volatile.emit('screen', { image: buffer.toString('base64'), size });
-            timeout = setTimeout(() => sendScreenshot(), screenshotFreq);
+            timeout = setTimeout(sendScreenshot, screenshotFreq);
         } catch (error) {
-            console.error('Something is already closed');
+            console.error('Something is already closed', error, error.stack);
         }
     }
 
@@ -55,7 +55,9 @@ function handlers(browser, options) {
         console.log(`Received action ${type} with params ${JSON.stringify(params)}`);
         if (actions[type]) {
             await actions[type](browser, params);
-            await sendScreenshot();
+            if (type !== 'histpry') {
+                await sendScreenshot();
+            }
         }
     }
 
