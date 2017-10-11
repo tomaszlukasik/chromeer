@@ -3,7 +3,8 @@ const defaultOpts = {
 };
 
 const actions = {
-    resize: async (browser, viewport) => browser.setViewport(viewport)
+    resize: (browser, viewport) => browser.setViewport(viewport),
+    mousemove: (browser, coords) => browser.mouseMove(coords)
 };
 
 function handlers(browser, options) {
@@ -30,7 +31,7 @@ function handlers(browser, options) {
         stopTimeout();
         console.log(`Received action ${type} with params ${JSON.stringify(params)}`);
         if (actions[type]) {
-            await actions[type](params);
+            await actions[type](browser, params);
         }
         await sendScreenshot();
     }

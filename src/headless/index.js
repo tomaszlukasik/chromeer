@@ -26,7 +26,8 @@ function headless(options) {
         close,
         goto: url => page.goto(url),
         screenshot: () => page.screenshot(screenshotOpts),
-        setViewport: viewport => page.setViewport(viewport)
+        setViewport: viewport => page.setViewport(viewport),
+        mouseMove: ({ x, y }) => page.mouse.move(x, y, 10)
     };
 }
 
