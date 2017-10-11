@@ -58,4 +58,3 @@ typings/
 .env
 
 src/client.bundle.js*
-package-lock.json
