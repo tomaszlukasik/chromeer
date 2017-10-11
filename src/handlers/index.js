@@ -22,7 +22,7 @@ function handlers(browser, options) {
         if (socket) {
             const buffer = await browser.screenshot();
             socket.volatile.emit('screen', { image: buffer.toString('base64') });
-            console.log(`Screenshot sent. Timestamp: ${new Date().getTime()}`);
+            // console.log(`Screenshot sent. Timestamp: ${new Date().getTime()}`);
         }
         timeout = setTimeout(() => sendScreenshot(), screenshotFreq);
     }
@@ -43,6 +43,7 @@ function handlers(browser, options) {
             action: handleAction,
             disconnect: async () => {
                 console.log('Disconnecting');
+                socket = undefined;
                 stopTimeout();
                 return browser.close();
             }
