@@ -1,13 +1,16 @@
 'use strict';
 
-module.exports = function PresentationLayer(canvas) {
+module.exports = function PresentationLayer() {
+    const canvas = document.getElementById('viewport');
+    const background = document.getElementById('background');
     const context = canvas.getContext('2d');
     const screen = new Image();
-    const panelHeight = document.querySelector('#panel').clientHeight;
+    const panelHeight = document.getElementById('panel').clientHeight;
 
-    const draw = (data) => {
+    const draw = ({ image = '', size = {} }) => {
         screen.onload = () => context.drawImage(screen, 0, 0);
-        screen.src = 'data:image/jpeg;base64,' + data.image;
+        screen.src = 'data:image/jpeg;base64,' + image;
+        resizeFullPage(size);
     };
 
     const resize = ({ width, height }) => {
@@ -15,9 +18,15 @@ module.exports = function PresentationLayer(canvas) {
         canvas.height = height;
     };
 
+    const resizeFullPage = ({ width, height }) => {
+        background.style.width = width + 'px';
+        background.style.height = height + 'px';
+    };
+
     return {
         draw,
         resize,
+        resizeFullPage,
         panelHeight
     }
 };

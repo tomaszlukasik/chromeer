@@ -9,11 +9,12 @@ const mapper = require('./client/puppeteer-mapper');
     console.info('Welcome to the Hack Day 2017!');
     console.info('Chromeer - Remote Browser with an isolation layer');
 
-    const presentation = PresentationLayer(document.getElementById('viewport'));
+    const presentation = PresentationLayer();
     const transport = TransportLayer({ host: 'http://localhost:9090' });
 
     const updateCanvasDimension = function () {
-        const { innerWidth: width, innerHeight: height } = window;
+        const width = window.innerWidth;
+        const height = window.innerHeight - presentation.panelHeight;
         transport.emit('resize', { width, height });
         presentation.resize({ width, height });
     };
@@ -36,7 +37,7 @@ const mapper = require('./client/puppeteer-mapper');
         transport.emit('history', { action: 'forward' });
     }, true);
 
-    document.querySelector('#panel').addEventListener('submit', (event) => {
+    document.getElementById('panel').addEventListener('submit', (event) => {
         event.stopPropagation();
         event.preventDefault();
         const url = document.querySelector('.value-url').value;
@@ -66,6 +67,12 @@ const mapper = require('./client/puppeteer-mapper');
         });
         transport.emit('dblclick', params)
     }, false);
+
+    window.addEventListener('scroll', throttle((event) => {
+        const params = { scrollX: window.scrollX, scrollY: window.scrollY };
+        console.log('scroll', params);
+        transport.emit('scroll', params)
+    }, 500), false);
 
 
     // handle server events
